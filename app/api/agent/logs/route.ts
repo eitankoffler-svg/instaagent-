@@ -1,13 +1,16 @@
 export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
-import { agentLogs } from "@/db/schema"; // or wherever this actually lives
+import { agentLogs } from "@/db/schema";
+import { desc } from "drizzle-orm";
+import { NextResponse } from "next/server";
 
 export async function GET() {
-  const logs = await db.query.agentLogs.findMany({
-    limit: 100,
-    orderBy: (t, { desc }) => desc(t.created_at),
-  });
+  const logs = await db
+    .select()
+    .from(agentLogs)
+    .orderBy(desc(agentLogs.createdAt))
+    .limit(100);
 
-  return Response.json(logs);
+  return NextResponse.json(logs);
 }
