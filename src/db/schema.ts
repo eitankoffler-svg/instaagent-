@@ -68,7 +68,7 @@ export const instagramAccounts = pgTable("instagram_accounts", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// ── Posts (the finished content) ──
+// ── Posts ──
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
   accountId: integer("account_id").references(() => instagramAccounts.id),
