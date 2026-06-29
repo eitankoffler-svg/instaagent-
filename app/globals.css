@@ -1,6 +1,8 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
+:root {
   --color-brand-50: #fdf2f8;
   --color-brand-100: #fce7f3;
   --color-brand-200: #fbcfe8;
@@ -51,20 +53,4 @@ body {
 
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.shimmer {
-  background: linear-gradient(90deg, var(--color-surface-3) 25%, var(--color-surface-4) 50%, var(--color-surface-3) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.6); }
 }
