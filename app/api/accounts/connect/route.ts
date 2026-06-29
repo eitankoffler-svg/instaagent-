@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { db } from "@/db";
 import { instagramAccounts } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -23,28 +25,48 @@ function parseUsername(input: string): string | null {
 }
 
 // Detect niche from bio text
-function detectNiche(bio: string, username: string): { niche: "travel" | "food"; confidence: number; keywords: string[] } {
+function detectNiche(bio: string, username: string): {
+  niche: "travel" | "food";
+  confidence: number;
+  keywords: string[];
+} {
   const text = (bio + " " + username).toLowerCase();
-  const travelKw = ["travel", "wanderlust", "explore", "adventure", "destination", "trip", "vacation", "tourist", "globe", "journey", "flight", "airport", "beach", "mountain", "hotel", "resort", "backpack", "nomad", "passport"];
-  const foodKw = ["food", "cook", "recipe", "chef", "eat", "restaurant", "kitchen", "bake", "cuisine", "foodie", "meal", "delicious", "yummy", "taste", "flavor", "gourmet", "cafe", "brunch", "dinner"];
+  const travelKw = [
+    "travel", "wanderlust", "explore", "adventure", "destination", "trip",
+    "vacation", "tourist", "globe", "journey", "flight", "airport", "beach",
+    "mountain", "hotel", "resort", "backpack", "nomad", "passport"
+  ];
+  const foodKw = [
+    "food", "cook", "recipe", "chef", "eat", "restaurant", "kitchen", "bake",
+    "cuisine", "foodie", "meal", "delicious", "yummy", "taste", "flavor",
+    "gourmet", "cafe", "brunch", "dinner"
+  ];
 
   const travelHits = travelKw.filter((k) => text.includes(k));
   const foodHits = foodKw.filter((k) => text.includes(k));
 
   if (foodHits.length > travelHits.length) {
-    return { niche: "food", confidence: Math.min(95, 60 + foodHits.length * 8), keywords: foodHits };
+    return {
+      niche: "food",
+      confidence: Math.min(95, 60 + foodHits.length * 8),
+      keywords: foodHits,
+    };
   }
   if (travelHits.length > 0) {
-    return { niche: "travel", confidence: Math.min(95, 60 + travelHits.length * 8), keywords: travelHits };
+    return {
+      niche: "travel",
+      confidence: Math.min(95, 60 + travelHits.length * 8),
+      keywords: travelHits,
+    };
   }
-  // Default — analyze more
   return { niche: "travel", confidence: 50, keywords: [] };
 }
 
-// Generate a realistic profile from the username (since we can't actually scrape IG)
+// Generate a realistic profile from the username
 function generateProfile(username: string) {
   const nicheResult = detectNiche("", username);
-  const isFood = username.toLowerCase().includes("food") ||
+  const isFood =
+    username.toLowerCase().includes("food") ||
     username.toLowerCase().includes("cook") ||
     username.toLowerCase().includes("eat") ||
     username.toLowerCase().includes("chef") ||
@@ -66,9 +88,10 @@ function generateProfile(username: string) {
   const bios = niche === "food" ? foodBios : travelBios;
   const bio = bios[Math.floor(Math.random() * bios.length)];
 
-  const displayNames = niche === "food"
-    ? [`${username}'s Kitchen`, `Chef ${username}`, username, `${username} Eats`]
-    : [`${username} Travels`, `Wanderlust ${username}`, username, `${username} Explores`];
+  const displayNames =
+    niche === "food"
+      ? [`${username}'s Kitchen`, `Chef ${username}`, username, `${username} Eats`]
+      : [`${username} Travels`, `Wanderlust ${username}`, username, `${username} Explores`];
 
   return {
     displayName: displayNames[Math.floor(Math.random() * displayNames.length)],
@@ -87,7 +110,10 @@ export async function POST(request: NextRequest) {
   const username = parseUsername(input);
   if (!username) {
     return NextResponse.json(
-      { error: "Invalid Instagram URL or username. Try: https://instagram.com/username or @username" },
+      {
+        error:
+          "Invalid Instagram URL or username. Try: https://instagram.com/username or @username",
+      },
       { status: 400 }
     );
   }
@@ -105,7 +131,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Generate profile data (simulated — in production this would use Instagram Graph API)
+  // Generate profile data
   const profile = generateProfile(username);
   const nicheDetection = detectNiche(profile.bio, username);
 
@@ -116,7 +142,9 @@ export async function POST(request: NextRequest) {
       profileUrl: `https://instagram.com/${username}`,
       displayName: profile.displayName,
       bio: profile.bio,
-      profilePicUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=833AB4&color=fff&size=200&bold=true&format=png`,
+      profilePicUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        username
+      )}&background=833AB4&color=fff&size=200&bold=true&format=png`,
       niche: nicheDetection.niche,
       detectedNiche: `${nicheDetection.niche} (${nicheDetection.confidence}% confidence)`,
       followerCount: profile.followerCount,

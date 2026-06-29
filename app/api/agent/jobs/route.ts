@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+
 import { db } from "@/db";
 import { agentJobs } from "@/db/schema";
 import { desc } from "drizzle-orm";
@@ -10,5 +11,6 @@ export async function GET() {
     .from(agentJobs)
     .orderBy(desc(agentJobs.createdAt))
     .limit(50);
+
   return NextResponse.json(jobs);
 }

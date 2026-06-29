@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { db } from "@/db";
 import { agentJobs, agentLogs } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
